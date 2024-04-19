@@ -34,9 +34,9 @@ class A(QtWidgets.QMainWindow):
             self.serverSoftwareList:List[str] = []
             self.curQWidgets:List[QtWidgets.QWidget] = []
             self.scrollAreaWidgetContentsVbox = QtWidgets.QVBoxLayout()
-            self.curBoxSelceteds:List[QtWidgets.QCheckBox]=[]
+            self.names : List[str] = []
 
-            self.t = T(self.curBoxSelceteds,None,self.comboBox.currentText())
+            self.t = T(self.names,None,self.comboBox.currentText())
             self.t.finished.connect(self.tfinish)
             self.t.py.connect(self.setPrb)
 
@@ -97,8 +97,9 @@ class A(QtWidgets.QMainWindow):
             self.comboBox.addItems([url for url in data.values()])
 
         def tStart(self):
-            self.progressBar.setMaximum(self.curBoxSelceteds.__len__())
-            if not self.t.isRunning() and self.curBoxSelceteds.__len__() >= 1:
+            self.progressBar.setMaximum(self.names.__len__())
+            print(self.names)
+            if not self.t.isRunning() and self.names.__len__() >= 1:
                 self.widget_4.setHidden(False)
                 self.t.url = self.comboBox.currentText()
                 self.t.savepath = self.lineEdit_2.text()
@@ -125,8 +126,9 @@ class A(QtWidgets.QMainWindow):
                         startPath = os.path.join(os.getcwd(),app)
                     if startPath:
                         def start():
-                            subprocess.run(f'''{startPath}''')
-                            self.infoappend(f"{app} 进程已启动")
+                            if os.path.isdir(startPath):
+                                subprocess.run(f'''{startPath}''')
+                                self.infoappend(f"{app} 进程已启动")
                         t = threading.Thread(target=start)
                         t.start()
 
@@ -148,18 +150,18 @@ class A(QtWidgets.QMainWindow):
                  self.serverSoftwareList.append(li)
 
             
-            def added(c:QtWidgets.QCheckBox):
-                if c.isChecked() and c not in self.curBoxSelceteds:
-                    self.curBoxSelceteds.append(c)
-                elif c in self.curBoxSelceteds:
-                    self.curBoxSelceteds.remove(c)
+            def added(c:QtWidgets.QCheckBox,name:str):
+                if c.isChecked() and c not in self.names:
+                    self.names.append(name)
+                elif c in self.names:
+                    self.names.remove(name)
 
-                if self.curBoxSelceteds:
+                if self.names:
                     self.pushButton_4.setEnabled(True)
                 else:
                     self.pushButton_4.setEnabled(False)
             
-            def radidck(c:QtWidgets.QRadioButton,cke:QtWidgets.QCheckBox):
+            def radidck(c:QtWidgets.QRadioButton,cke:QtWidgets.QCheckBox,name:str):
                 if c.isChecked():
                     mainApp = c.text()[11:]
                     self.label_3.setText(f"启动程序: {mainApp} ")
@@ -176,8 +178,8 @@ class A(QtWidgets.QMainWindow):
                 curBtn.setSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred,QtWidgets.QSizePolicy.Policy.MinimumExpanding)
                 curCheck = QtWidgets.QCheckBox(f"文件:{ii} : {i}")
                 maincurCheck = QtWidgets.QRadioButton(f"设置程序为入口{ii} : {i}")
-                curCheck.clicked.connect(lambda b,cc=curCheck:added(cc))
-                maincurCheck.clicked.connect(lambda c,ria=maincurCheck,cke=curCheck:radidck(ria,cke))
+                curCheck.clicked.connect(lambda b,cc=curCheck,name=i:added(cc,name))
+                maincurCheck.clicked.connect(lambda c,ria=maincurCheck,cke=curCheck,name=i:radidck(ria,cke,name))
                 curHox = QtWidgets.QHBoxLayout()
                 curHox.addWidget(maincurCheck)
                 curHox.addWidget(curCheck)
@@ -196,7 +198,7 @@ class T(QtCore.QThread):
     py = QtCore.pyqtSignal([int,str])
     ms = QtCore.pyqtSignal(str)
 
-    def __init__(self,ls:List[QtWidgets.QCheckBox],savepath=None,url=None):
+    def __init__(self,ls:List[str],savepath=None,url=None):
         super().__init__()    
         self.ls = ls
         self.savepath = savepath
@@ -204,9 +206,9 @@ class T(QtCore.QThread):
 
     def run(self) -> None:
         for index,i in enumerate(self.ls):
-            dlurl = self.url+"dl?p="+i.text()[8:]
-            p = self.download(dlurl,i.text()[8:])
-            self.py.emit(index+1,"文件下载完成: " +i.text()[7:] + f"路径: {p}")
+            dlurl = self.url+i
+            p = self.download(dlurl,i)
+            self.py.emit(index+1,"文件下载完成: " +i + f"路径: {p}")
 
     def download(self,url,name):
         root = os.getcwd()
@@ -223,7 +225,7 @@ class T(QtCore.QThread):
             else:
                 with open(root,"wb") as fp:  
                     fp.write(requests.get(url).content)
-                    break
+                break
         return root
         
     def kill(self,app):
