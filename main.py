@@ -44,7 +44,7 @@ class A(QtWidgets.QWidget):
         self.mainUi.pushButton.clicked.connect(self.init)
         self.mainUi.pushButton_3.clicked.connect(self.startApp)
         self.mainUi.pushButton_4.clicked.connect(self.tStart)
-        self.loadjson()
+        # self.loadjson()
         self.sockets = []
         self.initlivehostmanager()
         self.clickedsManage()

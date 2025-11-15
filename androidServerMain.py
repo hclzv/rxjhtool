@@ -51,7 +51,8 @@ class T(QtCore.QThread):
     def run(self) -> None:
         androidServer.reactor.listenTCP(6353, androidServer.EchoFactory(self.pyqtSignal_str))
         print("Server started on port 6353")
-        androidServer.reactor.run()
+        androidServer.reactor.run(installSignalHandlers=False) 
+        # androidServer.reactor.run()
 
 def main():
     pass
