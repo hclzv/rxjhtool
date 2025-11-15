@@ -2,7 +2,6 @@ PyQt5
 pydirectinput 
 requests 
 bs4 
-psutil
 pyinstaller
 pywin32 == 304
 pywin32-ctypes
