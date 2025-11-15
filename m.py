@@ -7,7 +7,7 @@ class A(QtWidgets.QWidget):
 
         for i in range(10):
             btn = QtWidgets.QPushButton(f"btn {i}")
-            btn.clicked.connect(lambda checked, x=i: QtWidgets.QMessageBox.information(self,"titile",i.__str__()))
+            btn.clicked.connect(lambda checked, x=i: QtWidgets.QMessageBox.information(self,"titile",x.__str__()))
             layout.addWidget(btn)
         self.setLayout(layout)
 
