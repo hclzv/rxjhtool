@@ -6,3 +6,4 @@ psutil
 pyinstaller
 pywin32 == 304
 pywin32-ctypes
+pywinauto
